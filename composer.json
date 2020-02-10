@@ -1,0 +1,42 @@
+{
+  "name": "kmuenkel/debug-helpers",
+  "description": "Various Laravel debugging tools",
+  "time": "2020-02-09 18:30:00",
+  "authors": [
+    {
+      "name": "Kevin Muenkel",
+      "email": "kevin_tm@yahoo.com"
+    }
+  ],
+  "keywords": [
+    "debugging",
+    "helpers",
+    "laravel"
+  ],
+  "type": "library",
+  "require": {
+    "php": ">=7.0.0",
+    "laravel/framework": "^5.0|^6.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Debug\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Debug\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
