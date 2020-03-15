@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace Debug\Helpers;
 
 use Exception;
 use ReflectionMethod;
