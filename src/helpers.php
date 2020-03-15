@@ -1,6 +1,6 @@
 <?php
 
-use App\Helpers;
+use Debug\Helpers;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 if (!function_exists('query_log')) {
