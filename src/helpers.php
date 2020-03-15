@@ -18,11 +18,11 @@ if (!function_exists('query_log')) {
     }
 }
 
-if (!function_exists('ddd')) {
+if (!function_exists('dt')) {
     /**
      * @param mixed ...$args
      */
-    function ddd(...$args)
+    function dt(...$args)
     {
         /** @var Helpers\StackTrace $trace */
         $trace = tap(app(Helpers\StackTrace::class)->setArgs(spread_args($args)), function (Helpers\StackTrace $trace) {
