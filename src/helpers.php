@@ -1,6 +1,7 @@
 <?php
 
 use Debug\Helpers;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 if (!function_exists('query_log')) {
@@ -12,7 +13,12 @@ if (!function_exists('query_log')) {
         static $ready = false;
         $ready = !$ready;
 
-        $queryLog = app(Helpers\DbQuery::class);
+        $ready && Event::listen(QueryExecuted::class, Helpers\DbQuery::class);
+        /** @var Helpers\StackTrace $tracer */
+        $tracer = tap(app(Helpers\StackTrace::class), function (Helpers\StackTrace $trace) {
+            $trace::setTruncate();
+        });
+        $queryLog = app(Helpers\DbQuery::class, compact('tracer'));
 
         return $ready ? $queryLog->record() : $queryLog;
     }
@@ -50,7 +56,9 @@ if (!function_exists('lt')) {
     function lt(...$args)
     {
         $trace = app(Helpers\StackTrace::class)->setArgs(spread_args($args));
-        app('log')->driver('json')->debug($trace->toJson());
+        $trace::setTruncate();
+        error_log(print_r($trace->toArray(), true));
+//        app('log')->driver('json')->debug($trace->toJson());
     }
 }
 
