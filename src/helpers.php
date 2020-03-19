@@ -6,18 +6,19 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 if (!function_exists('query_log')) {
     /**
+     * @param bool $trace
      * @return Helpers\DbQuery
      */
-    function query_log()
+    function query_log($trace = false)
     {
         static $ready = false;
         $ready = !$ready;
 
         $ready && Event::listen(QueryExecuted::class, Helpers\DbQuery::class);
         /** @var Helpers\StackTrace $tracer */
-        $tracer = tap(app(Helpers\StackTrace::class), function (Helpers\StackTrace $trace) {
+        $tracer = $trace ? tap(app(Helpers\StackTrace::class), function (Helpers\StackTrace $trace) {
             $trace::setTruncate();
-        });
+        }) : null;
         $queryLog = app(Helpers\DbQuery::class, compact('tracer'));
 
         return $ready ? $queryLog->record() : $queryLog;
