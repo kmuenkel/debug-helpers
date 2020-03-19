@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 class DbQuery implements Arrayable, Jsonable
 {
     /**
-     * @var StackTrace
+     * @var StackTrace|null
      */
     protected $tracer;
 
@@ -46,7 +46,7 @@ class DbQuery implements Arrayable, Jsonable
      */
     public function __construct(StackTrace $tracer = null)
     {
-        $this->tracer = $tracer ?: app(StackTrace::class);
+        $this->tracer = $tracer;
     }
 
     /**
@@ -70,7 +70,7 @@ class DbQuery implements Arrayable, Jsonable
             $tracer = (clone $this->tracer)->setArgs($args);
 
             self::$queries[] = $args;
-            self::$traces[] = $tracer;
+            $tracer && self::$traces[] = $tracer;
         }
     }
 
@@ -102,9 +102,10 @@ class DbQuery implements Arrayable, Jsonable
     public function toArray()
     {
         $traces = [];
+        $queries = $this->tracer ? self::$traces : self::$queries;
 
-        foreach (self::$traces as $trace) {
-            $traces[] = $trace->toArray();
+        foreach ($queries as $trace) {
+            $traces[] = ($trace instanceof StackTrace) ? $trace->toArray() : $trace;
         }
 
         return array_values(array_reverse($traces));
