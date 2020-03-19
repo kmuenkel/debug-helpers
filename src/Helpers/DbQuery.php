@@ -61,7 +61,10 @@ class DbQuery implements Arrayable, Jsonable
             $time = round($query->time / 1000, 2);
 
             $sql = $this->compileQuery($query);
-            $source = $config['driver'] . ':' . $config['username'] . '@' . $config['host'] . ':' . $config['port'];
+            $source = ($config['driver'] ?? '') . ':'
+                . ($config['username'] ?? '') . '@'
+                . ($config['host'] ?? '') . ':'
+                . ($config['port'] ?? '');
             $sql = "USE $database;".PHP_EOL.$sql;
             $args = compact('source', 'sql', 'time');
             $tracer = (clone $this->tracer)->setArgs($args);
@@ -134,6 +137,10 @@ class DbQuery implements Arrayable, Jsonable
      */
     public function compileQuery($sql, array $values = [], PDO $pdo = null)
     {
+        $connection = DB::connection();
+        $pdo = $pdo ?: $connection->getPdo();
+        $driverName = $connection->getDriverName();
+
         if (is_object($sql)) {
             if ($sql instanceof EloquentBuilder || $sql instanceof QueryBuilder) {
                 $values = $sql->getBindings();
@@ -149,7 +156,7 @@ class DbQuery implements Arrayable, Jsonable
         }
 
         $enclosures = [
-            'back_tick' => '`',
+            'back_tick' => ($driverName == 'sqlite') ? '"' : '`',
             'apostrophe' => "'"
         ];
 
@@ -170,7 +177,7 @@ class DbQuery implements Arrayable, Jsonable
         $values = array_map(function ($value) use ($pdo) {
             if (!is_numeric($value) && !is_null($value)) {
                 /** @var PDO $value */
-                $value = ($pdo ?: DB::connection()->getPdo())->quote($value);
+                $value = $pdo->quote($value);
             }
 
             return $value;
